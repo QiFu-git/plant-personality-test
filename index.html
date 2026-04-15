@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>灵魂植物性格测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== 基础样式重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #f5f1e8 0%, #e8e4dc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ========== 主容器 ========== */
+        .container {
+            width: 100%;
+            max-width: 640px;
+            min-width: 320px;
+            background: linear-gradient(180deg, #faf8f3 0%, #f5f1e8 100%);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(139, 119, 101, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ========== 页面视图 ========== */
+        .view {
+            display: none;
+            padding: 40px 30px;
+            min-height: 600px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 封面页样式 ========== */
+        .cover-view {
+            text-align: center;
+        }
+
+        .cover-view.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cover-illustration {
+            font-size: 80px;
+            margin: 30px 0;
+            line-height: 1.2;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .cover-title {
+            font-size: 32px;
+            color: #5a6b57;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .cover-subtitle {
+            font-size: 16px;
+            color: #8b9a87;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #8fa88a 0%, #7a9a75 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(138, 168, 138, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 168, 138, 0.4);
+        }
+
+        .btn-start:active {
+            transform: translateY(0);
+        }
+
+        /* ========== 答题页样式 ========== */
+        .quiz-view {
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(139, 154, 135, 0.1);
+            border-radius: 50%;
+            color: #5a6b57;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            background: rgba(139, 154, 135, 0.2);
+        }
+
+        .back-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(139, 154, 135, 0.2);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8fa88a 0%, #a8c4a2 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: #8b9a87;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #5a6b57;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid rgba(139, 154, 135, 0.3);
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 16px;
+            color: #5a6b57;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .option-btn:hover {
+            border-color: #8fa88a;
+            background: rgba(143, 168, 138, 0.05);
+            transform: translateX(5px);
+        }
+
+        .option-btn:active {
+            transform: translateX(0);
+        }
+
+        .option-btn.selected {
+            border-color: #8fa88a;
+            background: rgba(143, 168, 138, 0.1);
+        }
+
+        /* ========== 结果页样式 ========== */
+        .result-view {
+            text-align: center;
+            position: relative;
+        }
+
+        .result-plant-icon {
+            font-size: 100px;
+            margin: 20px 0 30px;
+            animation: bloom 1s ease-out;
+        }
+
+        @keyframes bloom {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-plant-name {
+            font-size: 36px;
+            color: #5a6b57;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .result-plant-latin {
+            font-size: 16px;
+            color: #a0a8a0;
+            font-style: italic;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .result-quote {
+            font-size: 18px;
+            color: #7a8a77;
+            font-style: italic;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        .result-flower-language {
+            display: inline-block;
+            background: rgba(143, 168, 138, 0.15);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #6a7a67;
+            margin-bottom: 25px;
+        }
+
+        .result-description {
+            font-size: 16px;
+            color: #5a6b57;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .result-extra {
+            background: rgba(248, 246, 241, 0.8);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .result-photosynthesis {
+            font-size: 14px;
+            color: #7a8a77;
+            margin-bottom: 10px;
+        }
+
+        .result-suitable-place {
+            font-size: 14px;
+            color: #8b9a87;
+        }
+
+        .result-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #8fa88a 0%, #7a9a75 100%);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(138, 168, 138, 0.3);
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 168, 138, 0.4);
+        }
+
+        .btn-share {
+            background: white;
+            color: #5a6b57;
+            border: 2px solid rgba(139, 154, 135, 0.4);
+            padding: 12px 34px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-share:hover {
+            border-color: #8fa88a;
+            background: rgba(143, 168, 138, 0.05);
+        }
+
+        .share-tip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(90, 107, 87, 0.95);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* ========== 叶子飘落动画 ========== */
+        .falling-leaf {
+            position: absolute;
+            font-size: 24px;
+            animation: fall 2s ease-in-out forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(200px) rotate(360deg);
+            }
+        }
+
+        /* ========== 隐藏款特殊样式 ========== */
+        .hidden-plant {
+            background: linear-gradient(135deg, rgba(186, 200, 210, 0.3) 0%, rgba(220, 230, 240, 0.3) 100%);
+            border-radius: 24px;
+            padding: 40px 30px;
+            margin: -40px -30px;
+        }
+
+        .hidden-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #b8c8d8 0%, #d0dce8 100%);
+            color: #5a6b77;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 响应式调整 ========== */
+        @media (max-width: 400px) {
+            .cover-title {
+                font-size: 26px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .option-btn {
+                padding: 15px 20px;
+                font-size: 15px;
+            }
+            .result-plant-name {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 封面页 -->
+        <div class="view cover-view active" id="coverView">
+            <!-- 植物插画占位 - 可替换为实际插画 -->
+            <div class="cover-illustration">
+                🌿🌻🌵🌸<br>
+                🍀🌺🌲🌷
+            </div>
+            <h1 class="cover-title">你的灵魂植物是什么？</h1>
+            <p class="cover-subtitle">一花一世界，测测你是什么植物系人格</p>
+            <button class="btn-start" onclick="startQuiz()">
+                <i class="fas fa-seedling"></i> 开始光合作用
+            </button>
+        </div>
+
+        <!-- 答题页 -->
+        <div class="view quiz-view" id="quizView">
+            <button class="back-btn" id="backBtn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="progress-text" id="progressText">第 1/12 题</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 8.33%"></div>
+            </div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options-container" id="optionsContainer"></div>
+        </div>
+
+        <!-- 结果页 -->
+        <div class="view result-view" id="resultView">
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <!-- 分享提示 -->
+    <div class="share-tip" id="shareTip">截图分享给朋友吧！</div>
+
+    <script>
+        // ========== 题库数据 ==========
+        const questions = [
+            {
+                text: "你理想中的周末是？",
+                options: [
+                    { text: "A. 和朋友外出，感受阳光和热闹", scores: { '向日葵': 2, '蒲公英': 2, '玫瑰': 1 } },
+                    { text: "B. 宅在家里，看书、喝茶、发呆", scores: { '含羞草': 2, '多肉植物': 2, '睡莲': 1 } },
+                    { text: "C. 去山野或公园，和自然待在一起", scores: { '薰衣草': 2, '银杏': 1, '松树': 1 } },
+                    { text: "D. 安排得满满当当，学习或搞创作", scores: { '竹子': 2, '枫树': 1, '捕蝇草': 1 } }
+                ]
+            },
+            {
+                text: "如果有人踩到了你的\"边界\"，你会？",
+                options: [
+                    { text: "A. 立刻竖起刺，让对方知道\"不可以\"", scores: { '仙人掌': 2, '玫瑰': 2, '捕蝇草': 1 } },
+                    { text: "B. 默默缩回去，自己消化一下", scores: { '含羞草': 2, '多肉植物': 1, '睡莲': 1 } },
+                    { text: "C. 看心情，有时候算了，有时候会说出来", scores: { '柳树': 2, '蒲公英': 1, '薰衣草': 1 } },
+                    { text: "D. 把这件事记在小本本上，以后绕着走", scores: { '竹子': 1, '蘑菇': 1, '银杏': 1 } }
+                ]
+            },
+            {
+                text: "你更希望自己拥有哪种能力？",
+                options: [
+                    { text: "A. 在恶劣环境里也能活得好的韧性", scores: { '仙人掌': 2, '松树': 2, '竹子': 1 } },
+                    { text: "B. 开出让人惊艳的花朵，被所有人看见", scores: { '向日葵': 2, '玫瑰': 2, '枫树': 1 } },
+                    { text: "C. 随风飘散，四海为家的自由", scores: { '蒲公英': 2, '柳树': 1, '薰衣草': 1 } },
+                    { text: "D. 安安静静地生长，却成为不可或缺的存在", scores: { '睡莲': 2, '银杏': 1, '蘑菇': 1 } }
+                ]
+            },
+            {
+                text: "朋友眼中的你，最像哪种状态？",
+                options: [
+                    { text: "A. 小太阳，有你在就热闹", scores: { '向日葵': 2, '玫瑰': 1, '枫树': 1 } },
+                    { text: "B. 治愈系，跟你聊天很舒服", scores: { '多肉植物': 2, '薰衣草': 2, '睡莲': 1 } },
+                    { text: "C. 有点神秘，不太容易看透", scores: { '含羞草': 1, '蘑菇': 2, '捕蝇草': 1 } },
+                    { text: "D. 稳如古树，靠谱有安全感", scores: { '松树': 2, '银杏': 2, '竹子': 1 } }
+                ]
+            },
+            {
+                text: "面对压力时，你的反应通常是？",
+                options: [
+                    { text: "A. 直接回击，或者立刻解决掉问题", scores: { '仙人掌': 2, '捕蝇草': 2, '玫瑰': 1 } },
+                    { text: "B. 先缩起来，等自己准备好了再应对", scores: { '含羞草': 2, '多肉植物': 1, '睡莲': 1 } },
+                    { text: "C. 找信任的人倾诉，寻求支持", scores: { '薰衣草': 1, '柳树': 2, '蒲公英': 1 } },
+                    { text: "D. 默默扛着，表面上啥事没有", scores: { '竹子': 2, '松树': 1, '银杏': 1 } }
+                ]
+            },
+            {
+                text: "你对待\"变化\"的态度是？",
+                options: [
+                    { text: "A. 拥抱变化，觉得新鲜事物很有趣", scores: { '向日葵': 1, '蒲公英': 2, '枫树': 2 } },
+                    { text: "B. 喜欢稳定，按自己的节奏慢慢来", scores: { '睡莲': 2, '松树': 1, '多肉植物': 1 } },
+                    { text: "C. 看情况，有时候随遇而安，有时候抗拒", scores: { '柳树': 2, '薰衣草': 1, '银杏': 1 } },
+                    { text: "D. 我就是那个制造变化的人", scores: { '捕蝇草': 1, '玫瑰': 1, '蘑菇': 2 } }
+                ]
+            },
+            {
+                text: "如果把自己比作一种生长方式，你是？",
+                options: [
+                    { text: "A. 向阳生长，目标明确，拼命往上", scores: { '向日葵': 2, '竹子': 2, '枫树': 1 } },
+                    { text: "B. 蔓藤生长，需要依附或缠绕着什么", scores: { '薰衣草': 1, '柳树': 2, '玫瑰': 1 } },
+                    { text: "C. 匍匐生长，贴着地面，稳稳当当", scores: { '多肉植物': 2, '蘑菇': 1, '含羞草': 1 } },
+                    { text: "D. 水生生长，在自己的水域里自在", scores: { '睡莲': 2, '蒲公英': 1, '仙人掌': 1 } }
+                ]
+            },
+            {
+                text: "哪种描述更符合你的内心世界？",
+                options: [
+                    { text: "A. 热闹的花园，四季都有不同的色彩", scores: { '向日葵': 1, '玫瑰': 2, '枫树': 2 } },
+                    { text: "B. 安静的角落，只有几片叶子但很自洽", scores: { '睡莲': 2, '多肉植物': 1, '含羞草': 1 } },
+                    { text: "C. 一片小森林，丰富而有点杂乱", scores: { '松树': 1, '银杏': 1, '蘑菇': 2 } },
+                    { text: "D. 一颗正在酝酿花苞的植物，还没想好什么时候开", scores: { '薰衣草': 2, '竹子': 1, '柳树': 1 } }
+                ]
+            },
+            {
+                text: "你对于\"被需要\"这件事的感觉是？",
+                options: [
+                    { text: "A. 很享受，被需要说明我有价值", scores: { '向日葵': 2, '玫瑰': 1, '薰衣草': 1 } },
+                    { text: "B. 有点压力，怕自己满足不了期待", scores: { '含羞草': 2, '多肉植物': 1, '睡莲': 1 } },
+                    { text: "C. 顺其自然，能帮就帮", scores: { '柳树': 2, '银杏': 1, '蒲公英': 1 } },
+                    { text: "D. 不太喜欢，我更希望彼此独立", scores: { '仙人掌': 2, '松树': 1, '捕蝇草': 1 } }
+                ]
+            },
+            {
+                text: "你会因为什么而\"枯萎\"？",
+                options: [
+                    { text: "A. 长时间独处，没有人交流", scores: { '向日葵': 2, '玫瑰': 1, '薰衣草': 1 } },
+                    { text: "B. 被过度关注，没有自己的空间", scores: { '含羞草': 2, '睡莲': 2, '仙人掌': 1 } },
+                    { text: "C. 一成不变，没有新鲜感", scores: { '蒲公英': 2, '枫树': 2, '捕蝇草': 1 } },
+                    { text: "D. 被误解，被当成不是自己的那种人", scores: { '竹子': 1, '银杏': 1, '蘑菇': 2 } }
+                ]
+            },
+            {
+                text: "如果要选一种气味作为你的签名，你会选？",
+                options: [
+                    { text: "A. 雨后青草和泥土的清香", scores: { '向日葵': 1, '蒲公英': 2, '松树': 1 } },
+                    { text: "B. 淡淡的花香，若有若无", scores: { '薰衣草': 2, '睡莲': 1, '含羞草': 1 } },
+                    { text: "C. 木质调的沉稳气息", scores: { '竹子': 2, '银杏': 2, '松树': 1 } },
+                    { text: "D. 带着点辛辣或独特的草药味", scores: { '仙人掌': 1, '捕蝇草': 2, '蘑菇': 1 } }
+                ]
+            },
+            {
+                text: "你觉得生命中最重要的是？",
+                options: [
+                    { text: "A. 绽放的那一刻，被看见", scores: { '向日葵': 2, '玫瑰': 2, '枫树': 1 } },
+                    { text: "B. 扎根的过程，那份笃定", scores: { '竹子': 2, '松树': 2, '银杏': 1 } },
+                    { text: "C. 和周围生命的联结", scores: { '薰衣草': 1, '柳树': 2, '多肉植物': 1 } },
+                    { text: "D. 保持自己的独特，哪怕不被理解", scores: { '仙人掌': 1, '睡莲': 1, '蘑菇': 2 } }
+                ]
+            }
+        ];
+
+        // ========== 植物结果数据 ==========
+        const plants = {
+            '向日葵': {
+                icon: '🌻',
+                latin: 'Sun-Flower',
+                quote: '你向阳而生，把阴影甩在身后。',
+                flowerLanguage: '花语：沉默的爱、光辉',
+                description: '你是行走的小太阳，总能照亮身边的人。但别忘了，向日葵也有低头的时刻，允许自己偶尔休息。',
+                photosynthesis: '晒太阳就能发电',
+                suitablePlace: '阳台'
+            },
+            '仙人掌': {
+                icon: '🌵',
+                latin: 'Cactaceae',
+                quote: '坚硬的外壳，柔软的内心。',
+                flowerLanguage: '花语：坚强、温暖',
+                description: '你看起来不太好惹，其实心里藏着水分和温柔。别人以为你不需要照顾，其实你只是习惯了独立。',
+                photosynthesis: '耐旱，偶尔浇水就好',
+                suitablePlace: '书桌'
+            },
+            '含羞草': {
+                icon: '🌿',
+                latin: 'Mimosa',
+                quote: '一碰就缩手，是谨慎，也是敏感。',
+                flowerLanguage: '花语：害羞、敏感',
+                description: '你的雷达很灵敏，能察觉别人注意不到的情绪。给自己一点时间张开叶子，世界会温柔接住你的。',
+                photosynthesis: '需要温柔对待',
+                suitablePlace: '心里'
+            },
+            '竹子': {
+                icon: '🎋',
+                latin: 'Bamboo',
+                quote: '虚心有节，在沉默里拔节生长。',
+                flowerLanguage: '花语：正直、奋进',
+                description: '你看起来云淡风轻，其实在别人看不到的地方默默扎根。一旦破土，就势不可挡。',
+                photosynthesis: '默默积蓄力量',
+                suitablePlace: '庭院'
+            },
+            '蒲公英': {
+                icon: '🌼',
+                latin: 'Dandelion',
+                quote: '随风而去，四海为家，自由是你。',
+                flowerLanguage: '花语：无法停留的爱、自由',
+                description: '你有一颗流浪的心，不被定义。但每个落脚的地方，都会因为你而多一抹亮色。',
+                photosynthesis: '随风飘散，随处安家',
+                suitablePlace: '原野'
+            },
+            '睡莲': {
+                icon: '🪷',
+                latin: 'Water Lily',
+                quote: '在静水里盛开，在自己的宇宙里清澈。',
+                flowerLanguage: '花语：纯净、淡泊',
+                description: '你有自己的水域，不喜欢被打扰。水面上的优雅，来自水下的定力。',
+                photosynthesis: '需要独处补充水分',
+                suitablePlace: '心里'
+            },
+            '银杏': {
+                icon: '🍂',
+                latin: 'Ginkgo',
+                quote: '你用一树金黄，讲了一个关于时间的故事。',
+                flowerLanguage: '花语：坚韧、沉着',
+                description: '你像一棵古老的银杏，有自己的节奏和风骨。经历过的事都沉淀在年轮里，让你越发从容。',
+                photosynthesis: '慢慢生长，静静沉淀',
+                suitablePlace: '庭院'
+            },
+            '多肉植物': {
+                icon: '🪴',
+                latin: 'Succulent',
+                quote: '胖胖的身体里，装满了对生活的热爱。',
+                flowerLanguage: '花语：治愈、圆满',
+                description: '你自带萌感，不争不抢，自己就能把自己养得很好。和你在一起，日子变得软乎乎的。',
+                photosynthesis: '储存阳光和快乐',
+                suitablePlace: '书桌'
+            },
+            '薰衣草': {
+                icon: '💜',
+                latin: 'Lavender',
+                quote: '淡淡的紫色，是你在等风，还是在等人？',
+                flowerLanguage: '花语：等待爱情、宁静',
+                description: '你的安静里有香气，靠近你的人都会不自觉放松下来。你的温柔是一种力量。',
+                photosynthesis: '散发治愈的气息',
+                suitablePlace: '卧室'
+            },
+            '玫瑰': {
+                icon: '🌹',
+                latin: 'Rose',
+                quote: '带刺是你保护色的，盛开才是你的本意。',
+                flowerLanguage: '花语：热爱、浪漫',
+                description: '你活得浓烈，爱憎分明。那些刺是你挑选世界的标准，而花开是你给世界的礼物。',
+                photosynthesis: '需要被看见和欣赏',
+                suitablePlace: '花园'
+            },
+            '捕蝇草': {
+                icon: '🪤',
+                latin: 'Venus Flytrap',
+                quote: '你以为我好惹？张开嘴只是为了捕捉。',
+                flowerLanguage: '花语：狡黠、机警',
+                description: '你看起来有点\"危险\"，其实只是聪明得懒得伪装。对无聊的东西，你直接\"咔嚓\"。',
+                photosynthesis: '主动出击，精准捕获',
+                suitablePlace: '窗台'
+            },
+            '柳树': {
+                icon: '🌳',
+                latin: 'Willow',
+                quote: '枝条柔软，根系却深。',
+                flowerLanguage: '花语：依恋、柔韧',
+                description: '你看起来随和好说话，其实心里有自己的坚持。风来了弯弯腰，风走了你还是你。',
+                photosynthesis: '随风而动，根深蒂固',
+                suitablePlace: '水边'
+            },
+            '松树': {
+                icon: '🌲',
+                latin: 'Pine',
+                quote: '岁寒，然后知松柏之后凋也。',
+                flowerLanguage: '花语：坚定、长寿',
+                description: '你是朋友圈里最稳的那一个。风雪来了别人慌张，你抖抖身上的雪，继续站着。',
+                photosynthesis: '四季常青，稳稳当当',
+                suitablePlace: '山野'
+            },
+            '蘑菇': {
+                icon: '🍄',
+                latin: 'Mushroom',
+                quote: '在潮湿的角落，建一座自己的童话小屋。',
+                flowerLanguage: '花语：奇遇、蛰伏',
+                description: '你不是传统意义上的\"植物\"，有自己的生存哲学。在阴暗处也能长得很好，本身就很酷。',
+                photosynthesis: '在安静处悄悄生长',
+                suitablePlace: '角落'
+            },
+            '枫树': {
+                icon: '🍁',
+                latin: 'Maple',
+                quote: '用一片红叶，点燃整个秋天。',
+                flowerLanguage: '花语：热情、回忆',
+                description: '你骨子里有热烈的基因，平时不显山露水，到了自己的季节就会绚烂得让所有人记住。',
+                photosynthesis: '积蓄能量，等待绽放',
+                suitablePlace: '庭院'
+            },
+            '昙花': {
+                icon: '🌸',
+                latin: 'Epiphyllum',
+                quote: '你选择在深夜盛开，不为谁看，只为自己。',
+                flowerLanguage: '花语：刹那的永恒、珍惜',
+                description: '你不是没有花期，你只是在等那个对的时刻。你的绽放是给懂得等待的人的惊喜。拥有这种特质的你，是稀有的1%。',
+                photosynthesis: '等待对的时刻绽放',
+                suitablePlace: '深夜',
+                isHidden: true
+            }
+        };
+
+        // ========== 状态管理 ==========
+        let currentQuestion = 0;
+        let answers = [];
+        let scores = {};
+
+        // ========== 初始化计分对象 ==========
+        function initScores() {
+            scores = {};
+            Object.keys(plants).forEach(plant => {
+                scores[plant] = 0;
+            });
+        }
+
+        // ========== 开始测试 ==========
+        function startQuiz() {
+            console.log('startQuiz called');
+            currentQuestion = 0;
+            answers = [];
+            initScores();
+            showView('quizView');
+            renderQuestion();
+            console.log('Quiz started successfully');
+        }
+
+        // ========== 渲染题目 ==========
+        function renderQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('progressText').textContent = `第 ${currentQuestion + 1}/12 题`;
+            document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / 12) * 100}%`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.text;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            // 更新返回按钮状态
+            document.getElementById('backBtn').disabled = currentQuestion === 0;
+        }
+
+        // ========== 选择选项 ==========
+        function selectOption(optionIndex) {
+            const question = questions[currentQuestion];
+            const selectedOption = question.options[optionIndex];
+            
+            // 保存答案
+            answers[currentQuestion] = optionIndex;
+            
+            // 累加分数
+            Object.entries(selectedOption.scores).forEach(([plant, score]) => {
+                scores[plant] += score;
+            });
+
+            // 标记选中状态
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons[optionIndex].classList.add('selected');
+
+            // 延迟进入下一题
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    renderQuestion();
+                } else {
+                    showResult();
+                }
+            }, 300);
+        }
+
+        // ========== 返回上一题 ==========
+        function goBack() {
+            if (currentQuestion > 0) {
+                // 减去上一题的分数
+                const prevQuestion = questions[currentQuestion - 1];
+                const prevAnswer = answers[currentQuestion - 1];
+                const prevOption = prevQuestion.options[prevAnswer];
+                
+                Object.entries(prevOption.scores).forEach(([plant, score]) => {
+                    scores[plant] -= score;
+                });
+
+                currentQuestion--;
+                answers.pop();
+                renderQuestion();
+            }
+        }
+
+        // ========== 显示结果 ==========
+        function showResult() {
+            // 找出最高分的植物
+            let maxScore = 0;
+            let resultPlant = '';
+            let sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            
+            resultPlant = sortedScores[0][0];
+            maxScore = sortedScores[0][1];
+
+            // 检查是否触发隐藏款昙花
+            // 条件：最高分与第二高分差值≤1，且用户表现出内向敏感追求意义的特征
+            const secondScore = sortedScores[1][1];
+            const scoreDiff = maxScore - secondScore;
+            
+            // 检查关键题目的选择（第3、6、12题）
+            const question3Answer = answers[2]; // 第3题：希望拥有的能力
+            const question6Answer = answers[5]; // 第6题：对待变化的态度
+            const question12Answer = answers[11]; // 第12题：生命中最重要的是
+            
+            // 判断是否具有"内向敏感但追求意义"的特征
+            // 第3题选D（安静生长），第6题选B（喜欢稳定），第12题选D（保持独特）
+            const isSensitiveAndMeaningful = 
+                (question3Answer === 3) && 
+                (question6Answer === 1 || question6Answer === 2) && 
+                (question12Answer === 3);
+            
+            // 触发隐藏款的条件
+            if ((scoreDiff <= 1 && isSensitiveAndMeaningful) || Math.random() < 0.01) {
+                resultPlant = '昙花';
+            }
+
+            const plant = plants[resultPlant];
+            
+            // 渲染结果页面
+            const resultContent = document.getElementById('resultContent');
+            let resultHTML = '';
+
+            if (plant.isHidden) {
+                resultHTML = `
+                    <div class="hidden-plant">
+                        <div class="hidden-badge">✨ 隐藏款 · 稀有1%</div>
+                        <div class="result-plant-icon">${plant.icon}</div>
+                        <h2 class="result-plant-name">${resultPlant}</h2>
+                        <p class="result-plant-latin">${plant.latin}</p>
+                        <p class="result-quote">"${plant.quote}"</p>
+                        <div class="result-flower-language">${plant.flowerLanguage}</div>
+                        <p class="result-description">${plant.description}</p>
+                        <div class="result-extra">
+                            <p class="result-photosynthesis">💡 你的光合作用方式：${plant.photosynthesis}</p>
+                            <p class="result-suitable-place">🏠 适合养在：${plant.suitablePlace}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultHTML = `
+                    <div class="result-plant-icon">${plant.icon}</div>
+                    <h2 class="result-plant-name">${resultPlant}</h2>
+                    <p class="result-plant-latin">${plant.latin}</p>
+                    <p class="result-quote">"${plant.quote}"</p>
+                    <div class="result-flower-language">${plant.flowerLanguage}</div>
+                    <p class="result-description">${plant.description}</p>
+                    <div class="result-extra">
+                        <p class="result-photosynthesis">💡 你的光合作用方式：${plant.photosynthesis}</p>
+                        <p class="result-suitable-place">🏠 适合养在：${plant.suitablePlace}</p>
+                    </div>
+                `;
+            }
+
+            resultHTML += `
+                <div class="result-buttons">
+                    <button class="btn-restart" onclick="restartQuiz()">
+                        <i class="fas fa-redo"></i> 重新测试
+                    </button>
+                    <button class="btn-share" onclick="shareResult()">
+                        <i class="fas fa-share-alt"></i> 分享结果
+                    </button>
+                </div>
+            `;
+
+            resultContent.innerHTML = resultHTML;
+            showView('resultView');
+        }
+
+        // ========== 重新测试 ==========
+        function restartQuiz() {
+            // 创建叶子飘落动画
+            createFallingLeaves();
+            
+            setTimeout(() => {
+                startQuiz();
+            }, 500);
+        }
+
+        // ========== 创建叶子飘落动画 ==========
+        function createFallingLeaves() {
+            const leaves = ['🍃', '🌿', '🍀', '🌱'];
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'falling-leaf';
+                    leaf.textContent = leaves[Math.floor(Math.random() * leaves.length)];
+                    leaf.style.left = `${Math.random() * 80 + 10}%`;
+                    leaf.style.top = '20%';
+                    container.appendChild(leaf);
+                    
+                    setTimeout(() => {
+                        leaf.remove();
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+
+        // ========== 分享结果 ==========
+        function shareResult() {
+            const shareTip = document.getElementById('shareTip');
+            shareTip.style.display = 'block';
+            
+            setTimeout(() => {
+                shareTip.style.display = 'none';
+            }, 2000);
+        }
+
+        // ========== 切换视图 ==========
+        function showView(viewId) {
+            console.log('showView called with:', viewId);
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.add('active');
+                console.log('View switched to:', viewId);
+            } else {
+                console.error('View not found:', viewId);
+            }
+        }
+    </script>
+</body>
+</html>
